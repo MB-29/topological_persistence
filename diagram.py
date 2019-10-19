@@ -54,13 +54,18 @@ class Diagram:
 
     def build_diagram(self):
         self.diagram = []
-        for index in range(len(self.simplices_number)):
+        for index in range(self.simplices_number):
             if self.pivots[index] < 0 :
                 try :
-                    self.pivots.index(index)
+                    end = self.pivots.index(index)
+                    interval = (self.simplices[index].dim,self.simplices[index].time,self.simplices[end].time)
                 except ValueError:
-                    interval = [self.simplices[index].time
-                    self.diagram.append()
+                    interval = (self.simplices[index].dim,self.simplices[index].time,"inf")
+                self.diagram.append(interval)
+
+    def print_diagram(self):
+        for interval in self.diagram:
+            print("{} {} {}".format(*interval))
 
 
 
