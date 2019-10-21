@@ -72,6 +72,7 @@ class Diagram:
 
 
 def find_pivot(matrix, column_index):
+    # The function returns a negative integer iff no pivot is found
     index = len(matrix)-1
     while index >= 0 and matrix[index][column_index] == 0:
         index -= 1
