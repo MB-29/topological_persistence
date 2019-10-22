@@ -1,15 +1,28 @@
 class Simplex:
 
-    def __init__(self, line):
+    def __init__(self, time,dim,vertices):
+        self.time = time
+        self.dim = dim
+        self.vertices = vertices
+
+
+    @classmethod
+    def simplex_from_line(cls, line):
         string_coords = line.split()
-        self.time = float(string_coords[0])
-        self.dim = int(string_coords[1])
-        self.vertices = tuple(sorted([int(vertex) for vertex in string_coords[2::]]))
+        time = float(string_coords[0])
+        dim = int(string_coords[1])
+        vertices = tuple(sorted([int(vertex) for vertex in string_coords[2::]]))
+        return cls(time,dim,vertices)
 
 
     def __str__(self):
         return f'dim : {self.dim}, time = {self.time}, vertices = {self.vertices}'
 
+    def __hash__(self):
+        return hash(self.vertices)
+    
+    def __equals__(self, other):
+        return self.vertices == other.vertices
 
     @staticmethod
     def compare(source, target):
@@ -24,3 +37,13 @@ class Simplex:
             edge = list(vertices_list).copy()[:vertex_index] + list(vertices_list.copy())[vertex_index+1:]
             boundary.append(tuple(sorted(edge)))
         return boundary
+
+    def filtration_from_simplex(self):
+        if self.dim == 0:
+            return [self]
+        else:
+            res = [self]
+            for edge in self.boundary():
+                res.extend(Simplex(self.time-1,self.dim-1,edge).filtration_from_simplex())
+            return res
+    
