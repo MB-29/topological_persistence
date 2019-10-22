@@ -2,6 +2,7 @@ from simplex import Simplex
 import functools
 
 
+
 class Diagram:
 
     def __init__(self):
@@ -11,7 +12,7 @@ class Diagram:
         with open(file_path, 'r') as data:
             line = data.readline()
             while line:
-                self.simplices.append(Simplex(line))
+                self.simplices.append(Simplex.simplex_from_line(line))
                 line = data.readline()
         self.simplices_number = len(self.simplices)
 
