@@ -1,11 +1,19 @@
 from simplex import Simplex
 import functools
+from matplotlib import pyplot as plt
+import os
 
 
+FIGURE_FOLDER = "figures"
 
 class Diagram:
 
+<<<<<<< Updated upstream
     def __init__(self):
+=======
+    def __init__(self, title = "diagram", use_sparse=False):
+        self.title = title
+>>>>>>> Stashed changes
         self.simplices = []
 
     def read_data(self, file_path):
@@ -70,6 +78,24 @@ class Diagram:
     def print_diagram(self):
         for interval in self.diagram:
             print("{} {} {}".format(*interval))
+
+    def display_diagram(self):
+        diagram = self.diagram_sparse if self.use_sparse else self.diagram
+        infinity = max([simplex.time for simplex in self.simplices])
+        print(infinity)
+        i = 0
+        plt.figure()
+        for interval in diagram:
+            if interval[2] == 'inf':
+                X = [interval[1], infinity + 2]
+            else:
+                X = interval[1:]
+            plt.plot(X, [i,i], color = "C{}".format(interval[0]))
+            i += 1
+        axes = plt.gca()
+        axes.set_xlim([0,infinity + 1])
+        plt.title(self.title)
+        plt.savefig(os.path.join(FIGURE_FOLDER, "{}.png".format(self.title)))
 
 
 def find_pivot(matrix, column_index):
