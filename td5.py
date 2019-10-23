@@ -2,8 +2,8 @@ from diagram import Diagram
 import time
 import os
 
-balls = ["{}-ball".format(k) for k in range(3)]
-spheres = ["{}-sphere".format(k) for k in range(5)]
+balls = ["{}-ball".format(k) for k in range(11)]
+spheres = ["{}-sphere".format(k) for k in range(11)]
 classical_spaces = ["mobius", "torus", "klein_bottle", "projective_plane"]
 for filtration in classical_spaces:
     start_time = time.time()

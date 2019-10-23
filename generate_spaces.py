@@ -20,18 +20,30 @@ def write_file(file_path, simplex_list):
     with open(file_path, 'w+') as f:
         f.write(data)
 
+def filtration_from_simplex_list(simplex_list):
+    if simplex_list == []:
+        return []
+    if simplex_list[0].dim == 0:
+        return simplex_list
+    else:
+        res = []
+        for simplex in simplex_list:
+            for edge in simplex.boundary():
+                res.append(Simplex(simplex.time-1,simplex.dim-1,edge))
+        res = remove_duplicates(res)
+        simplex_list.extend(filtration_from_simplex_list(remove_duplicates(res)))
+        return simplex_list
+
 def generate_d_ball(d):
     filename = os.path.join(FOLDER_NAME,"{}-ball.txt".format(d))
-    s = Simplex(10, d, tuple(range(d+1)))
-    simplex_list = s.filtration_from_simplex()
-    simplex_list = remove_duplicates(simplex_list)
+    s = Simplex(d, d, tuple(range(d+1)))
+    simplex_list = filtration_from_simplex_list([s])
     write_file(filename, simplex_list)
 
 def generate_d_sphere(d):
     filename = os.path.join(FOLDER_NAME,"{}-sphere.txt".format(d))
-    s = Simplex(10, d+1, tuple(range(d+2)))
-    simplex_list = s.filtration_from_simplex()
-    simplex_list = remove_duplicates(simplex_list)
+    s = Simplex(d+1, d+1, tuple(range(d+2)))
+    simplex_list = filtration_from_simplex_list([s])
     simplex_list.remove(s)
     write_file(filename, simplex_list)      
 
@@ -41,8 +53,8 @@ def generate_from_table(table, file_name, mobius = False):
     K = []
     for i in range(3 if not mobius else 1):
         for j in range(3):
-            L.append(Simplex(4,2,tuple(sorted([table[i][j],table[i+1][j],table[i][j+1]]))))
-            L.append(Simplex(4,2,tuple(sorted([table[i+1][j+1],table[i+1][j],table[i][j+1]]))))
+            L.append(Simplex(2,2,tuple(sorted([table[i][j],table[i+1][j],table[i][j+1]]))))
+            L.append(Simplex(2,2,tuple(sorted([table[i+1][j+1],table[i+1][j],table[i][j+1]]))))
     for simplex in L:
         K.extend(simplex.filtration_from_simplex())
     K = remove_duplicates(K)
@@ -94,3 +106,7 @@ generate_torus()
 generate_projective_plane()
 generate_klein_bottle()
 generate_mobius()
+
+for d in range(11):
+    generate_d_sphere(d)
+    generate_d_ball(d)

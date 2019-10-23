@@ -130,7 +130,7 @@ class Diagram:
 
     def display_diagram(self):
         diagram = self.diagram
-        infinity = max([simplex.time for simplex in self.simplices])
+        infinity = max([simplex.time for simplex in self.simplices]) + 1
         i = 0
         plt.figure()
         for interval in diagram:
@@ -138,7 +138,7 @@ class Diagram:
                 X = [interval[1], infinity + 2]
             else:
                 X = interval[1:]
-            plt.plot(X, [i,i], color = "C{}".format(interval[0]))
+            plt.plot(X, [i,i], color = "C{}".format(interval[0]) if interval[0]<10 else "black")
             i += 1
         axes = plt.gca()
         axes.set_xlim([0,infinity + 1])
