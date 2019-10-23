@@ -50,7 +50,7 @@ class Diagram:
             index += 1
 
     def build_sparse_matrix(self):
-        self.sparse_matrix = []
+        self.sparse_matrix = [set() for _ in range(self.simplices_number)]
         index = 0
         for simplex in self.simplices:
             if len(simplex.vertices) == 1:
@@ -59,7 +59,7 @@ class Diagram:
             boundary = simplex.boundary()
             for edge in boundary:
                 order = self.order_dictionary[edge]
-                self.sparse_matrix.append((order, index))
+                self.sparse_matrix[index].add(order)
             index += 1
         self.matrix = self.sparse_matrix
 
@@ -84,58 +84,31 @@ class Diagram:
                 first_occurence = self.pivots.index(self.pivots[column_index])
 
     def reduce_sparse_matrix(self):
-        self.pivots_sparse = []
-        current_column, max_row = self.sparse_matrix[0][1], -1
-
+   
         # find pivots
-        # sparse matrix is ordered by increasing column by construction
-        for cell in self.sparse_matrix:
-            row, column = cell[0], cell[1]
-            # when the iteration over one column is done, the pivot is the cell with max row
-            if column != current_column and max_row >=0 :
-                self.pivots_sparse.append((max_row, current_column))
-                current_column = column
-                max_row = -1
-            if row > max_row:
-                max_row = row
-        self.pivots_sparse.append((max_row, current_column))
-        print(f'found {len(self.pivots_sparse)} pivots')
-        self.pivots = [-1] * self.simplices_number
-        for pivot in self.pivots_sparse:
-            self.pivots[pivot[1]] = pivot[0]
-        # print(f'pivots : {self.pivots}')
+        self.pivots_sparse = [ max(column) if len(column) > 0 else - 1 for column in self.sparse_matrix]    
+        self.pivots = self.pivots_sparse
 
         print(f'Starting reduction')
         for column_index in range(self.simplices_number):
             first_occurence = self.pivots.index(self.pivots[column_index])
             while first_occurence < column_index and self.pivots[column_index] >= 0:
-                row = sum_sparse(self.sparse_matrix, first_occurence, column_index)
-                self.pivots[column_index] = row
-                first_occurence = self.pivots.index(self.pivots[column_index])
-            if column_index % 100 == 0:
+                source, target = self.sparse_matrix[first_occurence], self.sparse_matrix[column_index]
+                intersection, union = source.union(target), source.intersection(target)
+                self.sparse_matrix[column_index] = union.difference(intersection) 
+                column = self.sparse_matrix[column_index]
+                pivot_row = max(column) if len(column) > 0 else -1
+                self.pivots[column_index] = pivot_row
+                first_occurence = self.pivots.index(pivot_row)
+            if column_index % 1000 == 0:
                 print(f'index = {column_index}')
-
-        # index = 0
-        # for pivot in self.pivots_sparse:
-        #     row, column = pivot[0], pivot[1]
-        #     first_occurence = find_first_occurence(self.pivots_sparse, row, column)
-        #     while first_occurence < column and row >= 0:
-        #         row = sum_sparse(self.sparse_matrix, first_occurence, column)
-        #         self.pivots_sparse[index] = (row, column)
-        #         first_occurence = find_first_occurence(self.pivots_sparse, row, column)
-        #     index += 1
-      
-            # print(index)
             
 
     def build_diagram(self):
-        if self.use_sparse:
-            self.build_diagram_sparse()
-            return
-
         self.diagram = []
-        for index in range(self.simplices_number):
-            if self.pivots[index] < 0:
+        index = 0
+        for pivot in self.pivots:
+            if pivot < 0:
                 try:
                     end = self.pivots.index(index)
                     interval = (
@@ -144,9 +117,11 @@ class Diagram:
                     interval = (self.simplices[index].dim,
                                 self.simplices[index].time, "inf")
                 self.diagram.append(interval)
+            index += 1
 
     def build_diagram_sparse(self):
         self.diagram_sparse = []
+
         for pivot in self.pivots_sparse:
             row, column = pivot[0], pivot[1]
             if pivot[0] >= 0:
@@ -157,8 +132,7 @@ class Diagram:
             self.diagram_sparse.append(interval)
 
     def print_diagram(self):
-        diagram = self.diagram_sparse if self.use_sparse else self.diagram
-        for interval in diagram:
+        for interval in self.diagram:
             print("{} {} {}".format(*interval))
 
 
@@ -182,16 +156,3 @@ def sum(matrix, source, target):
     for i in range(len(matrix)):
         matrix[i][target] = (matrix[i][target] + matrix[i][source]) % 2
 
-# returns the index of the new pivot ; it is -1 if the column is zeroed out
-def sum_sparse(sparse_matrix, source, target):
-    source_column_rows = [cell[0] for cell in sparse_matrix if cell[1] == source]
-    target_column_rows = [cell[0] for cell in sparse_matrix if cell[1] == target]
-    for row in source_column_rows:
-        if row in target_column_rows:
-            sparse_matrix.remove((row, target))
-        else:
-            sparse_matrix.append((row, target))
-    target_column_rows = [cell[0] for cell in sparse_matrix if cell[1] == target]
-    if target_column_rows:
-        return max(target_column_rows)
-    return -1
