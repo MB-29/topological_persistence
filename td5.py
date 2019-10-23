@@ -23,7 +23,6 @@ matrix_start_time = time.time()
 diagram.build_matrix()
 print(f'Matrix of size {len(diagram.matrix)} built in {time.time() - matrix_start_time} seconds ---' )
 
-
 print('Reducing boundary matrix')
 reduction_start_time = time.time()
 diagram.reduce_matrix()
