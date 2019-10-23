@@ -2,13 +2,16 @@ from diagram import Diagram
 import time
 import os
 
+FILTRATIONS_FOLDER = "filtrations"
+
 balls = ["{}-ball".format(k) for k in range(11)]
 spheres = ["{}-sphere".format(k) for k in range(11)]
+example_filtrations = ["filtration_{}".format(s)for s in ["A","B","C", "D"]]
 classical_spaces = ["mobius", "torus", "klein_bottle", "projective_plane"]
-for filtration in classical_spaces:
+for filtration in example_filtrations:
     start_time = time.time()
 
-    filtration_path = os.path.join('classical_spaces', "{}.txt".format(filtration))
+    filtration_path = os.path.join(FILTRATIONS_FOLDER, "{}.txt".format(filtration))
     use_sparse_matrix = True
 
     diagram = Diagram(title = filtration, use_sparse=use_sparse_matrix)

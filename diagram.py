@@ -91,20 +91,25 @@ class Diagram:
     def reduce_sparse_matrix(self):
    
         # find pivots
-        self.pivots_sparse = [ max(column) if len(column) > 0 else - 1 for column in self.sparse_matrix]    
-        self.pivots = self.pivots_sparse
+        self.pivots = [ max(column) if len(column) > 0 else - 1 for column in self.sparse_matrix]    
+        pivots_inverse = [set() for _ in range(self.simplices_number)]
+        for k in range(self.simplices_number):
+            pivots_inverse[self.pivots[k]].add(k)
 
         print(f'Starting reduction')
         for column_index in range(self.simplices_number):
-            first_occurence = self.pivots.index(self.pivots[column_index])
+            first_occurence = min(pivots_inverse[self.pivots[column_index]])
             while first_occurence < column_index and self.pivots[column_index] >= 0:
                 source, target = self.sparse_matrix[first_occurence], self.sparse_matrix[column_index]
                 union, intersection = source.union(target), source.intersection(target)
                 self.sparse_matrix[column_index] = union.difference(intersection) 
                 column = self.sparse_matrix[column_index]
                 pivot_row = max(column) if len(column) > 0 else -1
+                pivots_inverse[self.pivots[column_index]].remove(column_index)
                 self.pivots[column_index] = pivot_row
-                first_occurence = self.pivots.index(pivot_row)
+                pivots_inverse[self.pivots[column_index]].add(column_index)
+                first_occurence = min(pivots_inverse[self.pivots[column_index]])
+                #first_occurence = self.pivots.index(pivot_row)
             if column_index % 1000 == 0:
                 print(f'index = {column_index}')
             
