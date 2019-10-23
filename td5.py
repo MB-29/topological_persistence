@@ -8,7 +8,7 @@ balls = ["{}-ball".format(k) for k in range(11)]
 spheres = ["{}-sphere".format(k) for k in range(11)]
 example_filtrations = ["filtration_{}".format(s)for s in ["A","B","C", "D"]]
 classical_spaces = ["mobius", "torus", "klein_bottle", "projective_plane"]
-for filtration in example_filtrations:
+for filtration in example_filtrations[3:]:
     start_time = time.time()
 
     filtration_path = os.path.join(FILTRATIONS_FOLDER, "{}.txt".format(filtration))
@@ -38,8 +38,8 @@ for filtration in example_filtrations:
     print('Building diagram')
     diagram.build_diagram()
 
-    print(f'final pivots : {diagram.pivots}')
-    diagram.print_diagram()
-    diagram.display_diagram()
+    #print(f'final pivots : {diagram.pivots}')
+    #print("Displaying diagram")
+    #diagram.display_diagram()
     print(f'Total execution time : {time.time() - start_time} seconds ---' )
 

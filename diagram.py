@@ -92,23 +92,23 @@ class Diagram:
    
         # find pivots
         self.pivots = [ max(column) if len(column) > 0 else - 1 for column in self.sparse_matrix]    
-        pivots_inverse = [set() for _ in range(self.simplices_number)]
+        self.pivots_inverse = [set() for _ in range(self.simplices_number)]
         for k in range(self.simplices_number):
-            pivots_inverse[self.pivots[k]].add(k)
+            self.pivots_inverse[self.pivots[k]].add(k)
 
         print(f'Starting reduction')
         for column_index in range(self.simplices_number):
-            first_occurence = min(pivots_inverse[self.pivots[column_index]])
+            first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
             while first_occurence < column_index and self.pivots[column_index] >= 0:
                 source, target = self.sparse_matrix[first_occurence], self.sparse_matrix[column_index]
                 union, intersection = source.union(target), source.intersection(target)
                 self.sparse_matrix[column_index] = union.difference(intersection) 
                 column = self.sparse_matrix[column_index]
                 pivot_row = max(column) if len(column) > 0 else -1
-                pivots_inverse[self.pivots[column_index]].remove(column_index)
+                self.pivots_inverse[self.pivots[column_index]].remove(column_index)
                 self.pivots[column_index] = pivot_row
-                pivots_inverse[self.pivots[column_index]].add(column_index)
-                first_occurence = min(pivots_inverse[self.pivots[column_index]])
+                self.pivots_inverse[self.pivots[column_index]].add(column_index)
+                first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
                 #first_occurence = self.pivots.index(pivot_row)
             if column_index % 1000 == 0:
                 print(f'index = {column_index}')
@@ -120,10 +120,10 @@ class Diagram:
         for pivot in self.pivots:
             if pivot < 0:
                 try:
-                    end = self.pivots.index(index)
+                    end = self.pivots_inverse[index].pop()
                     interval = (
                         self.simplices[index].dim, self.simplices[index].time, self.simplices[end].time)
-                except ValueError:
+                except KeyError:
                     interval = (self.simplices[index].dim,
                                 self.simplices[index].time, "inf")
                 self.diagram.append(interval)
@@ -135,6 +135,7 @@ class Diagram:
 
     def display_diagram(self):
         diagram = self.diagram
+
         infinity = max([simplex.time for simplex in self.simplices]) + 1
         i = 0
         plt.figure()
@@ -145,6 +146,8 @@ class Diagram:
                 X = interval[1:]
             plt.plot(X, [i,i], color = "C{}".format(interval[0]) if interval[0]<10 else "black")
             i += 1
+            if i%20 == 0:
+                print("step {} out of {}".format(i, len(diagram)))
         axes = plt.gca()
         axes.set_xlim([0,infinity + 1])
         plt.title(self.title)
