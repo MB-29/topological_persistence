@@ -14,7 +14,6 @@ class Simplex:
         vertices = tuple(sorted([int(vertex) for vertex in string_coords[2::]]))
         return cls(time,dim,vertices)
 
-
     def __str__(self):
         return f'dim : {self.dim}, time = {self.time}, vertices = {self.vertices}'
 
@@ -34,8 +33,9 @@ class Simplex:
         boundary = []
         for vertex_index in range(len(self.vertices)):
             vertices_list = list(self.vertices)
-            edge = list(vertices_list).copy()[:vertex_index] + list(vertices_list.copy())[vertex_index+1:]
-            boundary.append(tuple(sorted(edge)))
+            edge = list(vertices_list).copy()
+            del edge[vertex_index]
+            boundary.append(tuple(edge))
         return boundary
 
     def filtration_from_simplex(self):

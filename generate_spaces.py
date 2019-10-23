@@ -35,13 +35,14 @@ def generate_d_sphere(d):
     simplex_list.remove(s)
     write_file(filename, simplex_list)      
 
+
 def generate_from_table(table, file_name, mobius = False):
     L = []
     K = []
     for i in range(3 if not mobius else 1):
         for j in range(3):
-            L.append(Simplex(4,2,(table[i][j],table[i+1][j],table[i][j+1])))
-            L.append(Simplex(4,2,(table[i+1][j+1],table[i+1][j],table[i][j+1])))
+            L.append(Simplex(4,2,tuple(sorted([table[i][j],table[i+1][j],table[i][j+1]]))))
+            L.append(Simplex(4,2,tuple(sorted([table[i+1][j+1],table[i+1][j],table[i][j+1]]))))
     for simplex in L:
         K.extend(simplex.filtration_from_simplex())
     K = remove_duplicates(K)
@@ -78,7 +79,7 @@ def generate_projective_plane():
     generate_from_table(table, file_name)
 
 def generate_mobius():
-    file_name = os.path.join(FOLDER_NAME,"projective_plane.txt")
+    file_name = os.path.join(FOLDER_NAME,"mobius.txt")
     table = [
         [1,2,3,4],
         [4,5,6,1],
