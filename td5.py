@@ -1,16 +1,4 @@
 from diagram import Diagram
-<<<<<<< Updated upstream
-
-diagram = Diagram()
-diagram.read_data('filtration.txt')
-print(diagram.to_string())
-diagram.sort_simplices()
-print(diagram.to_string())
-diagram.build_matrix()
-diagram.reduce_matrix()
-diagram.build_diagram()
-diagram.print_diagram()
-=======
 import time
 import os
 
@@ -51,4 +39,4 @@ for filtration in :
     diagram.print_diagram()
     diagram.display_diagram()
     print(f'Total execution time : {time.time() - start_time} seconds ---' )
->>>>>>> Stashed changes
+
