@@ -13,7 +13,7 @@ classical_spaces = ["mobius", "torus", "klein_bottle", "projective_plane"]
 timing_dic = {}
 
 
-for filtration in classical_spaces:
+for filtration in classical_spaces + spheres + balls + example_filtrations :
     start_time = time.time()
 
     filtration_path = os.path.join(FILTRATIONS_FOLDER, "{}.txt".format(filtration))
