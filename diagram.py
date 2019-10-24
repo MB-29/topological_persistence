@@ -113,6 +113,7 @@ class Diagram:
                     if pivot_row >= 0:
                         self.pivots_inverse[pivot_row].add(column_index)
                         first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
+
             
 
     def build_diagram(self):
@@ -121,10 +122,13 @@ class Diagram:
         for pivot in self.pivots:
             if pivot < 0:
                 try:
-                    end = self.pivots_inverse[index].pop()
+                    if self.use_sparse:
+                        end = self.pivots_inverse[index].pop()
+                    else:
+                        end = self.pivots.index(index)
                     interval = (
                         self.simplices[index].dim, self.simplices[index].time, self.simplices[end].time)
-                except KeyError:
+                except(KeyError, ValueError):
                     interval = (self.simplices[index].dim,
                                 self.simplices[index].time, "inf")
                 self.diagram.append(interval)
