@@ -71,6 +71,7 @@ class Diagram:
 
     def reduce_matrix(self):
 
+        self.pivots_inverse = [set() for _ in range(self.simplices_number)]
         # Find pivots
         if self.use_sparse:
             self.reduce_sparse_matrix()
@@ -78,7 +79,6 @@ class Diagram:
         self.pivots = []
         for j in range(self.simplices_number):
             self.pivots.append(find_pivot(self.matrix, j))
-        print(f'pivots : {self.pivots}')
 
         # Reduce
         for column_index in range(len(self.matrix)):
@@ -113,9 +113,6 @@ class Diagram:
                     if pivot_row >= 0:
                         self.pivots_inverse[pivot_row].add(column_index)
                         first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
-                    #first_occurence = self.pivots.index(pivot_row)
-                if column_index % 1000 == 0:
-                    print(f'index = {column_index}')
             
 
     def build_diagram(self):
