@@ -5,6 +5,7 @@ import os
 
 
 FIGURE_FOLDER = "figures"
+BARCODE_FOLDER = "barcodes"
 
 class Diagram:
 
@@ -94,24 +95,27 @@ class Diagram:
         self.pivots = [ max(column) if len(column) > 0 else - 1 for column in self.sparse_matrix]    
         self.pivots_inverse = [set() for _ in range(self.simplices_number)]
         for k in range(self.simplices_number):
-            self.pivots_inverse[self.pivots[k]].add(k)
+            if self.pivots[k] >= 0:
+                self.pivots_inverse[self.pivots[k]].add(k)
 
         print(f'Starting reduction')
         for column_index in range(self.simplices_number):
-            first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
-            while first_occurence < column_index and self.pivots[column_index] >= 0:
-                source, target = self.sparse_matrix[first_occurence], self.sparse_matrix[column_index]
-                union, intersection = source.union(target), source.intersection(target)
-                self.sparse_matrix[column_index] = union.difference(intersection) 
-                column = self.sparse_matrix[column_index]
-                pivot_row = max(column) if len(column) > 0 else -1
-                self.pivots_inverse[self.pivots[column_index]].remove(column_index)
-                self.pivots[column_index] = pivot_row
-                self.pivots_inverse[self.pivots[column_index]].add(column_index)
+            if self.pivots[column_index] >= 0:
                 first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
-                #first_occurence = self.pivots.index(pivot_row)
-            if column_index % 1000 == 0:
-                print(f'index = {column_index}')
+                while self.pivots[column_index] >= 0 and first_occurence < column_index:
+                    source, target = self.sparse_matrix[first_occurence], self.sparse_matrix[column_index]
+                    union, intersection = source.union(target), source.intersection(target)
+                    self.sparse_matrix[column_index] = union.difference(intersection) 
+                    column = self.sparse_matrix[column_index]
+                    pivot_row = max(column) if len(column) > 0 else -1
+                    self.pivots_inverse[self.pivots[column_index]].remove(column_index)
+                    self.pivots[column_index] = pivot_row
+                    if pivot_row >= 0:
+                        self.pivots_inverse[pivot_row].add(column_index)
+                        first_occurence = min(self.pivots_inverse[self.pivots[column_index]])
+                    #first_occurence = self.pivots.index(pivot_row)
+                if column_index % 1000 == 0:
+                    print(f'index = {column_index}')
             
 
     def build_diagram(self):
@@ -130,8 +134,13 @@ class Diagram:
             index += 1
 
     def print_diagram(self):
+        S = ""
+        file_path = os.path.join(BARCODE_FOLDER, "{}_barcode.txt".format(self.title))
         for interval in self.diagram:
-            print("{} {} {}".format(*interval))
+            S += "{} {} {}\n".format(*interval)
+        with open(file_path, 'w+') as f:
+            f.write(S)
+        
 
     def display_diagram(self):
         diagram = self.diagram
