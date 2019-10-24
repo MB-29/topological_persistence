@@ -6,6 +6,7 @@ class Simplex:
         self.vertices = vertices
 
 
+    #class method to get instance from a line of a file
     @classmethod
     def simplex_from_line(cls, line):
         string_coords = line.split()
@@ -14,21 +15,20 @@ class Simplex:
         vertices = tuple(sorted([int(vertex) for vertex in string_coords[2::]]))
         return cls(time,dim,vertices)
 
-    def __str__(self):
-        return f'dim : {self.dim}, time = {self.time}, vertices = {self.vertices}'
-
-    def __hash__(self):
-        return hash(self.vertices)
-    
-    def __equals__(self, other):
-        return self.vertices == other.vertices
-
+    #comparison method used to sort the simplices before building the matrix
     @staticmethod
     def compare(source, target):
         if source.time != target.time:
             return source.time - target.time
         return source.dim - target.dim 
 
+
+    def __str__(self):
+        return f'dim : {self.dim}, time = {self.time}, vertices = {self.vertices}'
+
+    # returns a list of tuples
+    # each tuple has the vertices of an element of the boundary of self
+    # Note: if vertices_list is sorted (which it should be) then so are the results
     def boundary(self):
         boundary = []
         for vertex_index in range(len(self.vertices)):
@@ -38,12 +38,5 @@ class Simplex:
             boundary.append(tuple(edge))
         return boundary
 
-    def filtration_from_simplex(self):
-        if self.dim == 0:
-            return [self]
-        else:
-            res = [self]
-            for edge in self.boundary():
-                res.extend(Simplex(self.time-1,self.dim-1,edge).filtration_from_simplex())
-            return res
+
     
